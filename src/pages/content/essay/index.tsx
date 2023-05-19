@@ -1,6 +1,6 @@
 import { DownOutlined, PlusOutlined, UpOutlined } from '@ant-design/icons';
-import { Button, message, Input, Drawer, Card, Col, Form, Row } from 'antd';
-import React, { useState, useRef } from 'react';
+import { Button, message, Input, Drawer, Card, Col, Form, Row, Table } from 'antd';
+import React, { useState, useEffect, useRef } from 'react';
 import { PageContainer, FooterToolbar } from '@ant-design/pro-layout';
 import type { ProColumns, ActionType } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
@@ -9,22 +9,68 @@ import type { ProDescriptionsItemProps } from '@ant-design/pro-descriptions';
 import ProDescriptions from '@ant-design/pro-descriptions';
 import type { FormValueType } from './components/UpdateForm';
 import UpdateForm from './components/UpdateForm';
+import TableWrapper from '@/components/TableWrapper'
+import type { ColumnsType } from 'antd/es/table';
 import { rule, addRule, updateRule, removeRule, getList } from './service';
-import type { SearchBtnCrtlsItem, TableListItem, TableListPagination } from './data';
+import type { SearchBtnCrtlsItem, IEssay, TableListItem, TableListPagination } from './data';
 import './index.less'
-getList({ page: 1, pageSize: 10 })
 
+
+
+const columns: ColumnsType<IEssay> = [
+  {
+    key: 'infoId',
+    title: 'ID',
+    dataIndex: 'infoId',
+  },
+  {
+    key: 'text',
+    title: '内容',
+    dataIndex: 'text',
+  },
+  {
+    key: 'source',
+    title: '来源',
+    dataIndex: 'source',
+  },
+  {
+    key: 'createTime',
+    title: '创建时间',
+    dataIndex: 'createTime',
+  },
+  {
+    key: 'updateTime',
+    title: '更新时间',
+    dataIndex: 'updateTime',
+  },
+];
+
+const getData = async () => {
+  const res = await getList({ page: 1, pageSize: 10 })
+  const { list } = res.data
+  return list
+}
 
 const TableList: React.FC = () => {
   const [visibleAll, setVisbleAll] = useState(false)
+  const [data, setData] = useState([])
   const [form] = Form.useForm();
   const loading = false
   const formStyle = {
     maxWidth: 'none',
     padding: 24,
   };
+  useEffect(() => {
+    getData().then(res => setData(res))
+  }, []);
+  // getData().then(res => setData(res))
+  // getData().then(res => {
+  //   console.warn(res);
+  //   setData(res)
+  // })
+  // console.error(dataTemp);
 
-
+  // setData(dataTemp)
   const handleVisibleAll = () => {
     console.error(form.getFieldsValue());
     setVisbleAll(!visibleAll)
@@ -118,6 +164,7 @@ const TableList: React.FC = () => {
   return (
     <PageContainer>
       <TableSearchHeader />
+      <TableWrapper<IEssay> columns={columns} data={data} />
     </PageContainer>
   );
 };
