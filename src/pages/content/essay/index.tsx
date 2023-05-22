@@ -10,14 +10,14 @@ import ProDescriptions from '@ant-design/pro-descriptions';
 import type { FormValueType } from './components/UpdateForm';
 import UpdateForm from './components/UpdateForm';
 import TableWrapper from '@/components/TableWrapper'
-import type { ColumnsType } from 'antd/es/table';
+import type { ColumnsType, ColumnType } from 'antd/es/table';
 import { rule, addRule, updateRule, removeRule, getList } from './service';
 import type { SearchBtnCrtlsItem, IEssay, TableListItem, TableListPagination } from './data';
 import './index.less'
 
 
 
-const columns: ColumnsType<IEssay> = [
+const columns: ColumnType<object>[] = [
   {
     key: 'infoId',
     title: 'ID',
@@ -53,7 +53,7 @@ const getData = async () => {
 
 const TableList: React.FC = () => {
   const [visibleAll, setVisbleAll] = useState(false)
-  const [data, setData] = useState([])
+  const [data, setData] = useState([] as IEssay[])
   const [form] = Form.useForm();
   const loading = false
   const formStyle = {
@@ -63,16 +63,8 @@ const TableList: React.FC = () => {
   useEffect(() => {
     getData().then(res => setData(res))
   }, []);
-  // getData().then(res => setData(res))
-  // getData().then(res => {
-  //   console.warn(res);
-  //   setData(res)
-  // })
-  // console.error(dataTemp);
 
-  // setData(dataTemp)
   const handleVisibleAll = () => {
-    console.error(form.getFieldsValue());
     setVisbleAll(!visibleAll)
   }
   // 默认Buttons []
@@ -102,9 +94,21 @@ const TableList: React.FC = () => {
     placeholder?: string | undefined
   }[] = [
       {
+        name: 'text',
+        label: '内容',
+      },
+      {
         name: 'source',
         label: '来源',
-      }
+      },
+      {
+        name: 'createTime',
+        label: '创建时间',
+      },
+      {
+        name: 'updateTime',
+        label: '更新时间',
+      },
     ]
   if (searchFormCloums.length <= 3) {
     searchBtnCrtls.pop()
@@ -164,7 +168,7 @@ const TableList: React.FC = () => {
   return (
     <PageContainer>
       <TableSearchHeader />
-      <TableWrapper<IEssay> columns={columns} data={data} />
+      <TableWrapper<IEssay> data={data} columns={columns} />
     </PageContainer>
   );
 };

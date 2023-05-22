@@ -43,7 +43,7 @@ export type SearchBtnCrtlsItem = {
   visibleSwitch?: boolean
 }
 
-export interface IEssay {
+export type IEssay = {
   infoId: number,
   text: string,
   source: string,

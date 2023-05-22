@@ -1,16 +1,15 @@
 import { Button, message, Input, Drawer, Card, Col, Form, Row, Table } from 'antd';
-import type { ColumnsType } from 'antd/es/table';
-import React, { useState, useRef } from 'react';
+import type { ColumnsType, ColumnType, ColumnGroupType } from 'antd/es/table';
+import React, { useState, useContext } from 'react';
 
-interface TableProps {
-    columns: [],
-    data: [],
+interface TableProps<T> {
+    columns: ColumnType<object>[],
+    data: object[],
 }
 
-const TableWrapper: React.FC = (props: TableProps) => {
-    console.warn(props);
+function TableWrapper<T>(props: TableProps<T>) {
     const { columns, data } = props
-    console.error(columns, data);
+
 
     return (
         <Card style={
