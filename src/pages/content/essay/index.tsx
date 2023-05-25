@@ -1,7 +1,7 @@
 import { DownOutlined, PlusOutlined, UpOutlined } from '@ant-design/icons';
-import { Button, message, Input, DatePicker, Card, Col, Form, Row, Select } from 'antd';
+import { Button, message, Input, DatePicker, Card, Col, Form, Modal } from 'antd';
 import type { DatePickerProps } from 'antd';
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { PageContainer, FooterToolbar } from '@ant-design/pro-layout';
 import type { ProColumns, ActionType } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
@@ -12,27 +12,44 @@ import type { FormValueType } from './components/UpdateForm';
 import UpdateForm from './components/UpdateForm';
 import TableWrapper from '@/components/TableWrapper';
 import type { ColumnsType, ColumnType } from 'antd/es/table';
-import { rule, addRule, updateRule, removeRule, getList } from './service';
-import type { SearchBtnCrtlsItem, IEssay, TableListItem, TableListPagination } from './data';
+import { rule, addRule, updateRule, removeRule, getList, insert } from './service';
+import type { IEssay } from './data';
+import Context from '@/utils/context'
 import './index.less';
+import TextArea from 'antd/lib/input/TextArea';
 
-const columns: ColumnType<object>[] = [
+type HeaderFormColumsItem = {
+  name: string;
+  label: string;
+  placeholder?: string | undefined;
+  type: 'input' | 'select' | 'date';
+}
+interface IPagination {
+  total: number,
+  current: number,
+  pageSize: number,
+  onChange: Function
+}
+
+const columns: ColumnsType = [
   {
-    key: 'infoId',
-    title: 'ID',
-    dataIndex: 'infoId',
+    title: '序号',
+    render: (text, record, index) => `${index + 1}`
   },
   {
     key: 'text',
+    align: "center",
     title: '内容',
     dataIndex: 'text',
   },
   {
     key: 'source',
     title: '来源',
+    align: "center",
     dataIndex: 'source',
   },
   {
+    align: "center",
     key: 'createTime',
     title: '创建时间',
     dataIndex: 'createTime',
@@ -40,66 +57,68 @@ const columns: ColumnType<object>[] = [
   {
     key: 'updateTime',
     title: '更新时间',
+    align: "center",
     dataIndex: 'updateTime',
   },
   {
     title: '操作',
     dataIndex: 'infoId',
-    render: (_, record) => [<a onClick={() => {}}>查看</a>, <a>编辑</a>, <a>删除</a>],
+    align: "center",
+    width: 160,
+    render: (_, record) => [<a onClick={() => { }}>查看</a>, <a style={{ marginLeft: 5 }}>编辑</a>, <a className='red' style={{ marginLeft: 5 }}>删除</a>],
   },
 ];
-const onChange: DatePickerProps['onChange'] = (date, dateString) => {
-  console.log(date, dateString);
-};
-const getData = async () => {
-  const res = await getList({ page: 1, pageSize: 10 });
-  const { list } = res.data;
-  return list;
-};
+
+
 
 const TableList: React.FC = () => {
-  const [visibleAll, setVisbleAll] = useState(false);
+
   const [data, setData] = useState([] as IEssay[]);
+  const [isModalOpen, setModalOpen] = useState(false)
+  const [pagination, setPagination] = useState({} as IPagination)
   const [form] = Form.useForm();
-  const loading = false;
-  const formStyle = {
-    maxWidth: 'none',
-    padding: 24,
+  const getData = async (page: number) => {
+    const res = await getList({ page, pageSize: 10 });
+    const { list, total, pageSize, pageNum } = res.data;
+    setPagination({
+      total,
+      current: pageNum,
+      pageSize,
+      onChange(page: number) {
+        getListInfo(page)
+      }
+    })
+    return list;
   };
   useEffect(() => {
-    getData().then((res) => setData(res));
+    getListInfo()
   }, []);
+  async function getListInfo(page: number = 1) {
+    getData(page).then((res) => setData([...res]));
+  }
 
-  const handleVisibleAll = () => {
-    setVisbleAll(!visibleAll);
-  };
-  // 默认Buttons []
-  const searchBtnCrtls: SearchBtnCrtlsItem[] = [
-    {
-      content: '重置',
-      event: handleVisibleAll,
-      type: 'default',
-    },
-    {
-      content: '查询',
-      type: 'primary',
-      event: handleVisibleAll,
-      loading: true,
-    },
-    {
-      content: '更多',
-      type: 'link',
-      visibleSwitch: true,
-      event: handleVisibleAll,
-    },
-  ];
+  function handleSearch(form: any) {
+    console.error(form);
+
+  }
+  async function modalOk() {
+    const res = await insert({ source: '生活时光机', ...form.getFieldsValue() })
+    if (res && res.code === 0) {
+      getListInfo()
+      modalCancel()
+      message.success(res.message)
+      return
+    }
+    message.error(res.message)
+
+  }
+  function modalCancel() {
+    setModalOpen(false)
+    form.resetFields()
+  }
+
   // 搜索表单项 []
-  const searchFormColumns: {
-    name: string;
-    label: string;
-    placeholder?: string | undefined;
-    type: 'input' | 'select' | 'date';
-  }[] = [
+  const headerFormColumns: HeaderFormColumsItem[] = [
     {
       name: 'text',
       label: '内容',
@@ -121,86 +140,30 @@ const TableList: React.FC = () => {
       type: 'date',
     },
   ];
-  if (searchFormColumns.length <= 3) {
-    searchBtnCrtls.pop();
-  }
+  // if (searchFormColumns.length <= 3) {
+  //   searchBtnCrtls.pop();
+  // }
 
-  const renderSearchFromColumns = (type: string) => {
-    switch (type) {
-      case 'input':
-        return <Input placeholder={'请输入'} />;
-      case 'select':
-        return (
-          <Select
-            defaultValue="lucy"
-            options={[
-              { value: 'jack', label: 'Jack' },
-              { value: 'lucy', label: 'Lucy' },
-              { value: 'Yiminghe', label: 'yiminghe' },
-              { value: 'disabled', label: 'Disabled' },
-            ]}
-          />
-        );
-      case 'date':
-        return <DatePicker onChange={onChange} />;
-    }
-  };
-  /**
-   * 渲染搜索表单
-   * @returns
-   */
-  const getTableSearchHeaderColums = () => {
-    const children = [];
-    for (let i = 0; i < searchFormColumns.length; i++) {
-      children.push(
-        i < 3 || visibleAll ? (
-          <Col span={8} key={i}>
-            <Form.Item name={searchFormColumns[i].name} label={searchFormColumns[i].label}>
-              {renderSearchFromColumns(searchFormColumns[i].type)}
-              {/* <Input placeholder={searchFormColumns[i]?.placeholder || '请输入'} /> */}
-            </Form.Item>
-          </Col>
-        ) : null,
-      );
-    }
-    return children;
-  };
-  /**
-   * 合并 搜索表单 Buttons 布局
-   * @returns
-   */
-  const TableSearchHeader = () => {
-    return (
-      <Card>
-        <Form form={form} name="tableSearchForm" style={formStyle}>
-          <Row gutter={24}>{getTableSearchHeaderColums()}</Row>
-          <Row className="tableSearchForm-crtls">
-            {searchBtnCrtls.map((item) =>
-              item.loading ? (
-                <Button type={item.type} loading={loading} onClick={item.event}>
-                  {item.content}
-                </Button>
-              ) : (
-                <Button
-                  type={item.type}
-                  className={item.visibleSwitch ? 'visible-switch-btn' : ''}
-                  onClick={item.event}
-                >
-                  {item.content}{' '}
-                  {item.visibleSwitch ? visibleAll ? <UpOutlined /> : <DownOutlined /> : null}
-                </Button>
-              ),
-            )}
-          </Row>
-        </Form>
-      </Card>
-    );
-  };
+
+
+
 
   return (
     <PageContainer>
-      <TableSearchHeader />
-      <TableWrapper<IEssay> data={data} columns={columns} />
+      <Context.Provider value={{ handleSearch }}>
+        <TableWrapper<IEssay, HeaderFormColumsItem> data={data} pagination={pagination} columns={columns} searchFormColumns={headerFormColumns} headerLeftSlot={<>
+          <Button type='primary' onClick={() => setModalOpen(true)}>新增</Button>
+          <Button type='primary' style={{ marginLeft: 10 }}>批量删除</Button>
+        </>} />
+        <Modal title="新增" open={isModalOpen} onOk={modalOk} onCancel={modalCancel}>
+          <Form form={form}>
+            <Form.Item label="内容" name="text">
+              <Input.TextArea rows={4} />
+            </Form.Item>
+          </Form>
+        </Modal>
+      </Context.Provider>
+
     </PageContainer>
   );
 };

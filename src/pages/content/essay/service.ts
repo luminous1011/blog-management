@@ -56,7 +56,7 @@ export async function removeRule(data: { key: number[] }, options?: { [key: stri
 }
 
 
-/** 获取规则列表 GET /api/rule */
+/** 获取列表 GET */
 export async function getList(
   params: {
     // query
@@ -72,6 +72,21 @@ export async function getList(
     params: {
       ...params,
     },
+    ...(options || {}),
+  });
+}
+
+/** 获取列表 GET */
+export async function insert(
+  data: {
+    text: string;
+    source: string;
+  },
+  options?: { [key: string]: any },
+) {
+  return request('/inwe/essay/insertEssay', {
+    method: 'POST',
+    data,
     ...(options || {}),
   });
 }

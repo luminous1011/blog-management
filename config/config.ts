@@ -76,6 +76,12 @@ export default defineConfig({
           path: '/content/essay',
           component: './content/essay',
         },
+        {
+          name: 'article',
+          icon: 'smile',
+          path: '/content/article',
+          component: './content/article',
+        },
       ]
     },
     {

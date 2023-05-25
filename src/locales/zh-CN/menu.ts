@@ -51,4 +51,5 @@ export default {
   'menu.editor.koni': '拓扑编辑器',
   'menu.content': '内容管理',
   'menu.content.essay': '随笔',
+  'menu.content.article': '笔记',
 };
