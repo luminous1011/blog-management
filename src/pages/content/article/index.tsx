@@ -91,7 +91,7 @@ function MyEditor() {
                 />
             </div>
             <Upload
-                action="http://localhost:8888/upload"
+                action="http://localhost:8888/upload/img"
                 listType="picture-card"
                 fileList={fileList}
                 onPreview={handlePreview}
