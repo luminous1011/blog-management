@@ -64,8 +64,10 @@ function MyEditor() {
         setPreviewTitle(file.name || file.url!.substring(file.url!.lastIndexOf('/') + 1));
     };
 
-    const handleChange: UploadProps['onChange'] = ({ fileList: newFileList }) =>
+    const handleChange: UploadProps['onChange'] = ({ fileList: newFileList }) => {
         setFileList(newFileList);
+    }
+
 
     const uploadButton = (
         <div>
@@ -96,8 +98,9 @@ function MyEditor() {
                 fileList={fileList}
                 onPreview={handlePreview}
                 onChange={handleChange}
+                maxCount={1}
             >
-                {fileList.length >= 8 ? null : uploadButton}
+                {fileList.length >= 2 ? null : uploadButton}
             </Upload>
             <Modal open={previewOpen} title={previewTitle} footer={null} onCancel={handleCancel}>
                 <img alt="example" style={{ width: '100%' }} src={previewImage} />

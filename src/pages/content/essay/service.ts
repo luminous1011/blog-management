@@ -90,3 +90,18 @@ export async function insert(
     ...(options || {}),
   });
 }
+
+
+/** 删除   DELETE */
+export async function deleteById(
+  data: {
+    id: number
+  },
+  options?: { [key: string]: any },
+) {
+  return request(`/inwe/essay/deleteById/${data.id}`, {
+    data,
+    method: 'DELETE',
+    ...(options || {}),
+  });
+}
