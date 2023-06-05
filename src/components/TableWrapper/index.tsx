@@ -3,15 +3,19 @@ import type { ColumnsType, ColumnType, ColumnGroupType } from 'antd/es/table';
 import React, { useState, useContext, JSXElementConstructor } from 'react';
 import TableLayoutHeader from './components/TableLayoutHeader'
 import './index.less'
+import { GetRowKey } from 'antd/lib/table/interface';
 interface TableProps<T, H> {
-    columns: ColumnType<object>[],
+    columns: ColumnsType<object>,
     data: object[],
-    headerLeftSlot: Element,
-    pagination: object
+    headerLeftSlot: React.ReactNode,
+    pagination: object,
+    headerFormColumns: H[]
+    bordered: boolean,
+    rowSelection: object,
+    rowKey: string | GetRowKey<object> | undefined
 }
-
 function TableWrapper<T, H>(props: TableProps<T, H>) {
-    const { columns, data, pagination } = props
+    const { columns, data, pagination, bordered, rowKey, rowSelection } = props
 
 
     return (
@@ -22,7 +26,7 @@ function TableWrapper<T, H>(props: TableProps<T, H>) {
                 <Row className='table-header-slot'>
                     {props.headerLeftSlot}
                 </Row>
-                <Table bordered columns={columns} dataSource={data} pagination={props.pagination} />
+                <Table rowKey={rowKey} rowSelection={{ ...rowSelection }} bordered={bordered} columns={columns} dataSource={data} pagination={pagination} />
             </Card>
         </>
 

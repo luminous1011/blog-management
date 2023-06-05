@@ -49,4 +49,5 @@ export type IEssay = {
   source: string,
   createTime: number,
   updateTime: number,
+  url: string
 }

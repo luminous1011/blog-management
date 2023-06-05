@@ -105,3 +105,35 @@ export async function deleteById(
     ...(options || {}),
   });
 }
+
+/** 删除   DELETE */
+export async function deleteByIds(
+  data: {
+    ids: React.Key[]
+  },
+  options?: { [key: string]: any },
+) {
+  return request(`/inwe/essay/deleteByIds`, {
+    data,
+    method: 'DELETE',
+    ...(options || {}),
+  });
+}
+
+
+/** 编辑   PUT */
+export async function updateById(
+  data: {
+    infoId: number;
+    text: string;
+    source: string;
+  },
+  options?: { [key: string]: any },
+) {
+  return request(`/inwe/essay/updateById`, {
+    data,
+    method: 'PUT',
+    ...(options || {}),
+  });
+}
+
